@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+        }
+        .list-group-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .completed-task {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">📝 To-Do List</h1>
+        <div class="input-group mb-3">
+            <input type="text" id="taskInput" class="form-control" placeholder="Add a new task..." aria-label="Add a new task">
+            <button class="btn btn-primary" type="button" id="addTaskBtn">Add Task</button>
+        </div>
+
+        <div class="btn-group mb-3" role="group" aria-label="Filter tasks">
+            <button type="button" class="btn btn-secondary active" id="showAll">All</button>
+            <button type="button" class="btn btn-secondary" id="showActive">Active</button>
+            <button type="button" class="btn btn-secondary" id="showCompleted">Completed</button>
+        </div>
+
+        <ul class="list-group" id="taskList">
+            </ul>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Add a new task
+            $('#addTaskBtn').on('click', function() {
+                let taskText = $('#taskInput').val().trim();
+                if (taskText !== '') {
+                    let newTask = `<li class="list-group-item d-flex justify-content-between align-items-center" data-status="active">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox">
+                                            <span class="task-text">${taskText}</span>
+                                        </div>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-warning edit-btn">✏</button>
+                                            <button class="btn btn-sm btn-outline-danger delete-btn">❌</button>
+                                        </div>
+                                    </li>`;
+                    $('#taskList').append(newTask);
+                    $('#taskInput').val('');
+                }
+            });
+
+            // Mark task as completed
+            $('#taskList').on('change', 'input[type="checkbox"]', function() {
+                let listItem = $(this).closest('li');
+                if ($(this).is(':checked')) {
+                    listItem.find('.task-text').addClass('completed-task');
+                    listItem.attr('data-status', 'completed');
+                } else {
+                    listItem.find('.task-text').removeClass('completed-task');
+                    listItem.attr('data-status', 'active');
+                }
+            });
+
+            // Delete a task
+            $('#taskList').on('click', '.delete-btn', function() {
+                $(this).closest('li').remove();
+            });
+
+            // Edit a task
+            $('#taskList').on('click', '.edit-btn', function() {
+                let listItem = $(this).closest('li');
+                let taskTextSpan = listItem.find('.task-text');
+                let currentText = taskTextSpan.text();
+                let newText = prompt('Edit your task:', currentText);
+                if (newText !== null && newText.trim() !== '') {
+                    taskTextSpan.text(newText);
+                }
+            });
+            
+            // Filter tasks
+            $('.btn-group').on('click', 'button', function() {
+                $('.btn-group button').removeClass('active');
+                $(this).addClass('active');
+
+                let filter = $(this).attr('id');
+                $('#taskList li').each(function() {
+                    let status = $(this).attr('data-status');
+                    if (filter === 'showAll') {
+                        $(this).show();
+                    } else if (filter === 'showActive' && status === 'active') {
+                        $(this).show();
+                    } else if (filter === 'showCompleted' && status === 'completed') {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
